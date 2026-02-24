@@ -449,6 +449,16 @@ class LLMObsExperimentsClient(BaseLLMObsWriter):
 
         if is_update:
             rj["id"] = cast(UpdatableDatasetRecord, record)["record_id"]
+            tag_ops = record.get("tag_operations")
+            if tag_ops:
+                serialized: dict[str, JSONType] = {}
+                if "add" in tag_ops:
+                    serialized["add"] = tag_ops["add"]
+                if "remove" in tag_ops:
+                    serialized["remove"] = tag_ops["remove"]
+                if "replace" in tag_ops:
+                    serialized["set"] = tag_ops["replace"]  # map replace → set for backend
+                rj["tag_operations"] = cast(JSONType, serialized)
         else:
             tags = record.get("tags")
             if tags:
